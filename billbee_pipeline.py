@@ -1,4 +1,3 @@
-from numpy import product
 import pandas as pd
 from scripts.processing import *
 from scripts.billbee_api import call_billbee
@@ -25,8 +24,9 @@ df = df.merge(product_df, on='Id', how='inner')
 
 df["InvoiceAddress"] = df["InvoiceAddress"].apply(extract_adress)
 df["ShippingAddress"] = df["ShippingAddress"].apply(extract_adress)
+df["Tags"] = df["Tags"].apply(lambda tags:", ".join(tags))
 
-drops = ["ShippingIds", "SellerComment", "Comments", "InvoiceAddress", "ShippingAddress", "OrderItems", "ShippingAddress", "OrderItems", "Seller", "Tags", "Customer", "Payments", "History"]
+drops = ["ShippingIds", "SellerComment", "Comments", "InvoiceAddress", "ShippingAddress", "OrderItems", "ShippingAddress", "OrderItems", "Seller", "Customer", "Payments", "History"]
 df = df.drop(columns=drops)
 
 print(df)
