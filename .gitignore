@@ -1,2 +1,4 @@
 billbee_key.txt
 *.json
+.DS_Store
+scripts/__pycache__/
