@@ -33,19 +33,20 @@ class Google_Sheets:
         self.SERVICE = build('sheets', 'v4', credentials=creds)
 
 
-    def write_pandas_to_sheet(self, df, SPREADSHEET_ID, include_headers=True):
+    def write_pandas_to_sheet(self, df, spreadsheet_id, include_headers=True):
 
         headers = [list(df.columns)] if include_headers else []
         values = headers + df.values.tolist()
         body = {'values': values}
 
+        resultClear = self.SERVICE.spreadsheets().values().clear(
+                spreadsheetId=spreadsheet_id, range='!A1:Z',
+                body={}).execute()
+        print(f"Cleared {resultClear.get('clearedRange')} for Google Sheet: https://docs.google.com/spreadsheets/d/{spreadsheet_id}")
         result = self.SERVICE.spreadsheets().values().update(
-                spreadsheetId=SPREADSHEET_ID, range='A1',
+                spreadsheetId=spreadsheet_id, range='A1',
                 valueInputOption='USER_ENTERED', body=body).execute()
-
-        print('{0} cells updated.'.format(result.get('updatedCells')))
-
-        #dont forget to cut all the remaining parts of the sheet
+        print(f"Updated {result.get('updatedCells')} cells for Google Sheet: https://docs.google.com/spreadsheets/d/{spreadsheet_id}")
     
 
 GOOGLE_SHEETS = Google_Sheets()
