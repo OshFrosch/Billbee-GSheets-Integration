@@ -9,7 +9,6 @@ json_data = call_billbee("orders")
 data = json_data['Data']
 
 df = pd.DataFrame(data)
-df = df.fillna('')
 
 shipping_df = df["ShippingIds"].apply(extract_shipping).apply(pd.Series)
 df = pd.concat([shipping_df, df], axis=1)
@@ -28,6 +27,7 @@ df["Tags"] = df["Tags"].apply(lambda tags:", ".join(tags))
 
 drops = ["ShippingIds", "SellerComment", "Comments", "InvoiceAddress", "ShippingAddress", "OrderItems", "ShippingAddress", "OrderItems", "Seller", "Customer", "Payments", "History"]
 df = df.drop(columns=drops)
+df = df.fillna('')
 
 print(df)
 

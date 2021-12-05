@@ -17,11 +17,13 @@ def extract_adress(adress):
     return adr
 
 def extract_product(products):
-    product_lists = {k: [] for k in ["Product", "Quantity", "TotalPrice", "ProductWeight", "ProductBillbeeId"]}
+    product_lists = {k: [] for k in ["Product", "Quantity", "TotalPrice",
+                                     "ProductWeight", "ProductBillbeeId", "SKU/Bestandseinheit"]}
     for product in products:
         product_lists["Product"].append(product["Product"]["Title"])
         product_lists["ProductWeight"].append(product["Product"]["Weight"])
         product_lists["ProductBillbeeId"].append(product["Product"]["BillbeeId"])
+        product_lists["SKU/Bestandseinheit"].append(product["Product"]["SKU"])
         product_lists["Quantity"].append(product["Quantity"])
         product_lists["TotalPrice"].append(product["TotalPrice"])
     return product_lists

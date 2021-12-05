@@ -3,3 +3,4 @@ billbee_key.txt
 .DS_Store
 __pycache__/
 *.ipynb
+All_in_one/*.txt

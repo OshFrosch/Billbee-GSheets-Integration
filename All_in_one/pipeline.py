@@ -1,9 +1,11 @@
+
+########### Google Sheets ###########
+
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
-
 
 class Google_Sheets:
 
@@ -11,21 +13,25 @@ class Google_Sheets:
         # The file token.json stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first time.
 
+
         creds = None
+        dirname = os.path.dirname(__file__)
+        token_path = os.path.join(dirname, 'token.json')
+        credentials_path = os.path.join(dirname, 'credentials.json')
         scopes = ['https://www.googleapis.com/auth/spreadsheets']
 
-        if os.path.exists('keys/token.json'):
-            creds = Credentials.from_authorized_user_file('keys/token.json', scopes)
+        if os.path.exists(token_path):
+            creds = Credentials.from_authorized_user_file(token_path, scopes)
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    'keys/credentials.json', scopes)
+                    credentials_path, scopes)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open('keys/token.json', 'w') as token:
+            with open(token_path, 'w') as token:
                 token.write(creds.to_json())
 
         # Creating Service as Instance Attribute
@@ -51,6 +57,10 @@ class Google_Sheets:
 GOOGLE_SHEETS = Google_Sheets()
 
 
+
+
+########### Billbee Connection ###########
+
 import pandas as pd
 import requests
 from requests.auth import HTTPBasicAuth
@@ -69,6 +79,11 @@ def call_billbee(service):
     print(response.status_code, response.reason)
 
     return response.json()
+
+
+
+
+########### Processing Functions ###########
 
 def extract_shipping(ShippingIds):
     shipping = {
@@ -89,11 +104,13 @@ def extract_adress(adress):
     return adr
 
 def extract_product(products):
-    product_lists = {k: [] for k in ["Product", "Quantity", "TotalPrice", "ProductWeight", "ProductBillbeeId"]}
+    product_lists = {k: [] for k in ["Product", "Quantity", "TotalPrice",
+                                     "ProductWeight", "ProductBillbeeId", "SKU/Bestandseinheit"]}
     for product in products:
         product_lists["Product"].append(product["Product"]["Title"])
         product_lists["ProductWeight"].append(product["Product"]["Weight"])
         product_lists["ProductBillbeeId"].append(product["Product"]["BillbeeId"])
+        product_lists["SKU/Bestandseinheit"].append(product["Product"]["SKU"])
         product_lists["Quantity"].append(product["Quantity"])
         product_lists["TotalPrice"].append(product["TotalPrice"])
     return product_lists
@@ -101,6 +118,7 @@ def extract_product(products):
 
 
 
+########### Main Pipeline ###########
 
 SPREADSHEET_ID = '1jre8imIUz61QqArOqwYCrRF5JXuKZ1dv-ub1U-SU8uo'
 
@@ -108,7 +126,6 @@ json_data = call_billbee("orders")
 data = json_data['Data']
 
 df = pd.DataFrame(data)
-df = df.fillna('')
 
 shipping_df = df["ShippingIds"].apply(extract_shipping).apply(pd.Series)
 df = pd.concat([shipping_df, df], axis=1)
@@ -127,6 +144,7 @@ df["Tags"] = df["Tags"].apply(lambda tags:", ".join(tags))
 
 drops = ["ShippingIds", "SellerComment", "Comments", "InvoiceAddress", "ShippingAddress", "OrderItems", "ShippingAddress", "OrderItems", "Seller", "Customer", "Payments", "History"]
 df = df.drop(columns=drops)
+df = df.fillna('')
 
 print(df)
 
