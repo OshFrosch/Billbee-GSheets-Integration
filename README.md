@@ -1,6 +1,6 @@
 # Billbee Google Sheets Integration
 
-This repository reads and processes data from the billbee API and imports it to google sheets with modular authentification. The SetUp is exeptionally easy reagarding Google. You just have to LogIn via your Google Account.
+This repository reads and processes data from the billbee API and imports it to google sheets. The pipeline will automatically ask you to login with your Google credentials via integrating with the Google authentification serviceto be able to write to your GSheets. This pipeline will fetch live data and keep the sheet up to date.
 
 ## Setup
 
